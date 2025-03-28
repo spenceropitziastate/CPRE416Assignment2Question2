@@ -1,0 +1,92 @@
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap; // Using ConcurrentHashMap for thread safety later
+
+// Placeholder classes (replace with your actual implementations)
+class EnhancementId {
+    private final String id;
+    public EnhancementId(String id) { this.id = id; }
+    // Implement equals() and hashCode() for proper Map key behavior
+    @Override public boolean equals(Object o) { /* ... */ return true; } // Simplified
+    @Override public int hashCode() { /* ... */ return id.hashCode(); }   // Simplified
+    @Override public String toString() { return "EnhancementId[" + id + "]"; }
+}
+
+class ConfigurationData {
+    private final String data;
+    public ConfigurationData(String data) { this.data = data; }
+    @Override public String toString() { return "ConfigData[" + data + "]"; }
+}
+
+
+/**
+ * AppCache implements the Singleton pattern to provide a global,
+ * in-memory cache for ConfigurationData keyed by EnhancementId.
+ */
+public class AppCache {
+
+    // 1. The single, static, final instance (initialized eagerly)
+    private static final AppCache INSTANCE = new AppCache();
+
+    // 2. The actual cache storage.
+    //    Using ConcurrentHashMap for inherent thread-safety (addresses part 3 later)
+    private final Map<EnhancementId, ConfigurationData> cache;
+
+    // 3. Private constructor to prevent external instantiation.
+    private AppCache() {
+        // Initialize the cache map
+        cache = new ConcurrentHashMap<>();
+        System.out.println("AppCache Singleton instance created."); // Optional: for verification
+    }
+
+    // 4. Public static method to get the single instance.
+    public static AppCache getInstance() {
+        return INSTANCE;
+    }
+
+    // --- Cache Operations ---
+
+    /**
+     * Adds or updates an entry in the cache.
+     *
+     * @param enhancementId The key.
+     * @param configurationData The value.
+     */
+    public void set(EnhancementId enhancementId, ConfigurationData configurationData) {
+        if (enhancementId == null) {
+            // Or throw IllegalArgumentException, depending on requirements
+            System.err.println("Warning: Trying to cache with null EnhancementId.");
+            return;
+        }
+        // ConcurrentHashMap allows null values by default, but you might forbid it.
+        if (configurationData == null) {
+             System.err.println("Warning: Trying to cache null ConfigurationData for ID: " + enhancementId);
+             // Decide whether to remove the key or store null. Storing null might be valid.
+             // cache.remove(enhancementId); // Option: remove if value is null
+        }
+        cache.put(enhancementId, configurationData);
+        // System.out.println("Cached: " + enhancementId + " -> " + configurationData); // Optional logging
+    }
+
+    /**
+     * Retrieves an entry from the cache.
+     *
+     * @param enhancementId The key.
+     * @return The cached ConfigurationData, or null if not found.
+     */
+    public ConfigurationData get(EnhancementId enhancementId) {
+        if (enhancementId == null) {
+            return null;
+        }
+        return cache.get(enhancementId);
+    }
+
+    // Optional: Other useful methods
+    public void clear() {
+        cache.clear();
+        System.out.println("AppCache cleared.");
+    }
+
+    public int size() {
+        return cache.size();
+    }
+}
