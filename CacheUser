@@ -22,7 +22,6 @@ public class CacheUser {
         } else {
             System.out.println("Data not found in cache for ID: " + id);
             // Logic to fetch data from the original source if not in cache...
-            // Maybe add it to the cache after fetching.
         }
     }
 
