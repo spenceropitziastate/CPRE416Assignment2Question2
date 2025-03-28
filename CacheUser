@@ -1,0 +1,49 @@
+public class CacheUser {
+
+    public void processEnhancement(String idStr, String dataStr) {
+        // Get the single instance of the cache
+        AppCache cache = AppCache.getInstance();
+
+        // Create key and data objects (using placeholder constructors)
+        EnhancementId id = new EnhancementId(idStr);
+        ConfigurationData data = new ConfigurationData(dataStr);
+
+        // --- Add/Update data in the cache ---
+        System.out.println("Adding/Updating cache for ID: " + id);
+        cache.set(id, data);
+
+        // --- Retrieve data from the cache ---
+        System.out.println("Attempting to retrieve cache for ID: " + id);
+        ConfigurationData cachedData = cache.get(id);
+
+        if (cachedData != null) {
+            System.out.println("Found in cache: " + cachedData);
+            // Use the cached data...
+        } else {
+            System.out.println("Data not found in cache for ID: " + id);
+            // Logic to fetch data from the original source if not in cache...
+            // Maybe add it to the cache after fetching.
+        }
+    }
+
+    public static void main(String[] args) {
+        CacheUser user1 = new CacheUser();
+        CacheUser user2 = new CacheUser(); // Another part of the application
+
+        // User 1 adds data
+        user1.processEnhancement("ENH-001", "Initial Config Data");
+
+        // User 2 retrieves data (will find what User 1 added)
+        user2.processEnhancement("ENH-001", "Updated Config Data"); // This will update the cache
+
+        // User 1 retrieves again (will see the update from User 2)
+        System.out.println("\nUser 1 retrieving again:");
+        ConfigurationData finalData = AppCache.getInstance().get(new EnhancementId("ENH-001"));
+        System.out.println("Final check: " + finalData);
+
+        // Check non-existent item
+        System.out.println("\nChecking non-existent ID:");
+        ConfigurationData nonExistent = AppCache.getInstance().get(new EnhancementId("ENH-999"));
+        System.out.println("Data for ENH-999: " + nonExistent); // Should be null
+    }
+}
